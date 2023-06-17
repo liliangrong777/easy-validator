@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "types",
+    "emitDeclarationOnly": true,
+    "noImplicitAny": false,
+    "target": "ES5",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/*"
+  ]
+}
