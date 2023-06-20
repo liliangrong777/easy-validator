@@ -4,13 +4,13 @@ type RuleItemReg = { reg: RegExp } & RuleItemField
 type RuleItemValidator = { validator: (rule, value: any) => Error | void }
 export type RuleItem = RuleItemRequired | RuleItemReg | RuleItemValidator | RuleItemField
 
-interface ValidationStrategy {
+export interface ValidationStrategy {
   type:string;
   validate(rule: RuleItem, value: any): void | string;
 }
 
 class RequiredValidationStrategy implements ValidationStrategy {
-  type = 'required'
+  type = '__required'
   validate (rule: RuleItemRequired, value: any): string | void {
     if (value === '') {
       return rule.message || 'Required'
@@ -19,7 +19,7 @@ class RequiredValidationStrategy implements ValidationStrategy {
 }
 
 class RegValidationStrategy implements ValidationStrategy {
-  type = 'regexp'
+  type = '__regexp'
   validate (rule: RuleItemReg, value: any): void | string {
     if (!rule.reg.test(value)) {
       return rule.message || 'Invalid'
@@ -28,7 +28,7 @@ class RegValidationStrategy implements ValidationStrategy {
 }
 
 class ValidatorValidationStrategy implements ValidationStrategy {
-  type = 'custom'
+  type = '__custom'
   validate (rule: RuleItemValidator, value: any): void | string {
     try {
       rule.validator(rule, value);
@@ -40,14 +40,14 @@ class ValidatorValidationStrategy implements ValidationStrategy {
 
 export class Validator {
   protected validates: ValidationStrategy[] = []
-  protected rules: RuleItem[] = []
+  rules: RuleItem[] = []
   protected static defaultStrategies = {
-    required:RequiredValidationStrategy,
-    regexp:RegValidationStrategy,
-    custom:ValidatorValidationStrategy
+    __required:RequiredValidationStrategy,
+    __regexp:RegValidationStrategy,
+    __custom:ValidatorValidationStrategy
   }
   protected static strategies = new Map<string, ValidationStrategy>();
-  protected static getOrCreateStrategy (type: 'required' | 'regexp' | 'custom'): ValidationStrategy {
+  protected static getOrCreateStrategy (type: keyof typeof Validator['defaultStrategies']): ValidationStrategy {
     let strategy = Validator.strategies.get(type);
     if(!strategy) {
       strategy = new Validator.defaultStrategies[type]()
@@ -69,6 +69,7 @@ export class Validator {
    * @param rules An optional array of validation rules.
    */
   constructor (rules?: RuleItem[]) {
+    if(!rules) return
     if (!Array.isArray(rules)) {
       throw new Error('Invalid rules. Expected an array.');
     }
@@ -82,20 +83,20 @@ export class Validator {
         throw new Error('Invalid rule item. Must have a valid structure.');
       }
     }
-    if (rules && rules.length > 0) {
+    if (rules.length > 0) {
       this.add(...rules)
       this.rules = rules
     }
   }
   protected static getRuleStrategy (rule: RuleItem): ValidationStrategy {
     if ((rule as RuleItemRequired).required) {
-      return Validator.getOrCreateStrategy('required');
+      return Validator.getOrCreateStrategy('__required');
     }
     if ((rule as RuleItemReg).reg) {
-      return Validator.getOrCreateStrategy('regexp');
+      return Validator.getOrCreateStrategy('__regexp');
     }
     if ((rule as RuleItemValidator).validator) {
-      return Validator.getOrCreateStrategy('custom');
+      return Validator.getOrCreateStrategy('__custom');
     }
     const customStrategy = Validator.strategies.get((rule as RuleItemField).type)
     if(customStrategy) {
@@ -112,6 +113,7 @@ export class Validator {
       const rule = rules[i];
       const validationStrategy = Validator.getRuleStrategy(rule);
       this.validates.push(validationStrategy)
+      this.rules.push(rule)
     }
   }
   /**
