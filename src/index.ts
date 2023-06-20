@@ -1,6 +1,6 @@
 type RuleItemField = { message?: string,type?:string }
-type RuleItemRequired = { required: boolean } & RuleItemField
-type RuleItemReg = { reg: RegExp } & RuleItemField
+type RuleItemRequired = { required: boolean ,message?: string}
+type RuleItemReg = { reg: RegExp ,message?:string}
 type RuleItemValidator = { validator: (rule, value: any) => Error | void }
 export type RuleItem = RuleItemRequired | RuleItemReg | RuleItemValidator | RuleItemField
 
