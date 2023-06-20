@@ -60,7 +60,8 @@ module.exports = {
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unsafe-return": "off",
-    "@typescript-eslint/no-unsafe-argument": "off"
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/ban-types": "off"
   },
   // https://eslint.org/docs/latest/user-guide/configuring/ignoring-code#the-eslintignore-file
   ignorePatterns: [
