@@ -18,7 +18,7 @@ class RequiredValidationStrategy implements ValidationStrategy {
 
 class RegValidationStrategy implements ValidationStrategy {
   validate (rule: RuleItemReg, value: any): void | string {
-    if (rule.reg.test(value)) {
+    if (!rule.reg.test(value)) {
       return rule.message
     }
   }
