@@ -31,12 +31,7 @@
             this.type = '__custom';
         }
         ValidatorValidationStrategy.prototype.validate = function (rule, value) {
-            try {
-                rule.validator(rule, value);
-            }
-            catch (error) {
-                return error;
-            }
+            return rule.validator(rule, value);
         };
         return ValidatorValidationStrategy;
     }());

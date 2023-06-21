@@ -11,7 +11,7 @@ declare type RuleItemReg = {
     message?: string;
 };
 declare type RuleItemValidator = {
-    validator: (rule: any, value: any) => Error | void;
+    validator: (rule: any, value: any) => string | void;
 };
 declare type RuleItem = RuleItemRequired | RuleItemReg | RuleItemValidator | RuleItemField;
 interface ValidationStrategy {
