@@ -1,4 +1,4 @@
-import { Validator, RuleItem, RuleItemRequired, RuleItemReg, RuleItemValidator,ValidationStrategy } from './src';
+import { Validator, RuleItem, ValidationStrategy } from './src';
 
 describe('Validator', () => {
   describe('addStrategies', () => {

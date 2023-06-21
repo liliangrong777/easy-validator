@@ -7,11 +7,11 @@ const buildConfig = {
   input: 'src/index.ts',
   output: [
     {
-      file: 'dist/validate.common.js',
+      file: 'dist/easy-validator.common.js',
       format: 'cjs',
     },
     {
-      file: 'dist/validate.common.min.js',
+      file: 'dist/easy-validator.common.min.js',
       format: 'cjs',
       plugins: [
         terser({
@@ -23,18 +23,18 @@ const buildConfig = {
       ]
     },
     {
-      file: 'dist/validate.esm.js',
+      file: 'dist/easy-validator.esm.js',
       format: 'es'
     },
     {
-      file: 'dist/validate.js',
+      file: 'dist/easy-validator.js',
       format: 'umd',
-      name: 'Validate'
+      name: 'easy-validator'
     },
     {
-      file: 'dist/validate.min.js',
+      file: 'dist/easy-validator.min.js',
       format: 'umd',
-      name: 'Validate',
+      name: 'easy-validator',
       plugins: [
         terser({
           compress: {

@@ -1,10 +1,10 @@
 {
-  "name": "simple_validate",
-  "version": "1.0.5",
-  "description": "A simple validator written by typescript.",
-  "main": "dist/simple_validate.common.js",
-  "module": "dist/simple_validate.esm.js",
-  "unpkg": "dist/simple_validate.min.js",
+  "name": "easy-validator",
+  "version": "1.0.0",
+  "description": "A lightweight and versatile validation library for JavaScript and TypeScript. It provides a flexible rule-based validation system with built-in and customizable validation strategies.",
+  "main": "dist/easy-validator.common.js",
+  "module": "dist/easy-validator.esm.js",
+  "unpkg": "dist/easy-validator.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test:onlyChanged": "jest --onlyChanged",
@@ -18,7 +18,7 @@
     "dist"
   ],
   "keywords": [
-    "simple_validate",
+    "easy-validator",
     "simple validate",
     "validator",
     "javascript",
@@ -26,10 +26,10 @@
   ],
   "author": "liliangrong777<1198072497@qq.com>",
   "license": "MIT",
-  "homepage": "https://github.com/liliangrong777/simple_validate",
+  "homepage": "https://github.com/liliangrong777/easy-validator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/liliangrong777/simple_validate.git"
+    "url": "https://github.com/liliangrong777/easy-validator.git"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
