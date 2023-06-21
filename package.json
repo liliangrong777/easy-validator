@@ -1,5 +1,5 @@
 {
-  "name": "easy-validator",
+  "name": "js-easy-validator",
   "version": "0.0.1",
   "description": "A lightweight and versatile validation library for JavaScript and TypeScript. It provides a flexible rule-based validation system with built-in and customizable validation strategies.",
   "main": "dist/easy-validator.common.js",
