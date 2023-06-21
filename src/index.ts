@@ -1,7 +1,7 @@
 type RuleItemField = { message?: string,type?:string }
 type RuleItemRequired = { required: boolean ,message?: string}
 type RuleItemReg = { reg: RegExp ,message?:string}
-type RuleItemValidator = { validator: (rule, value: any) => Error | void }
+type RuleItemValidator = { validator: (rule, value: any) => string | void }
 export type RuleItem = RuleItemRequired | RuleItemReg | RuleItemValidator | RuleItemField
 
 export interface ValidationStrategy {
@@ -30,11 +30,7 @@ class RegValidationStrategy implements ValidationStrategy {
 class ValidatorValidationStrategy implements ValidationStrategy {
   type = '__custom'
   validate (rule: RuleItemValidator, value: any): void | string {
-    try {
-      rule.validator(rule, value);
-    } catch (error: any) {
-      return error
-    }
+    return rule.validator(rule, value);
   }
 }
 

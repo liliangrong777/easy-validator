@@ -66,7 +66,7 @@ describe('Validator', () => {
         {
           validator: (rule, value) => {
             if (value !== 'hello') {
-              throw 'Value must be hello';
+              return 'Value must be hello';
             }
           }
         }

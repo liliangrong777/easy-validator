@@ -1,83 +1,149 @@
+[English](https://github.com/liliangrong777/easy-validator/blob/main/README.md) | 简体中文
+
 # Validator
 
-Validator 是一个用于值验证的 JavaScript 类。它提供了一种灵活的方式来定义验证规则，并根据这些规则对值进行验证。
+`Validator` 是一个 npm 包，提供了一个灵活且可扩展的验证框架，用于根据一组规则验证数据。它允许您使用各种策略定义验证规则，并对不同类型的数据进行验证。
+
+## 安装
+
+要安装 `Validator` 包，您可以使用 npm 或 yarn：
+
+```shell
+npm install @your-organization/validator
+```
+
+或者
+
+```shell
+yarn add @your-organization/validator
+```
 
 ## 功能
 
-Validator 类具有以下功能：
+- 使用一组预定义策略定义验证规则。
+- 可扩展的架构允许添加自定义验证策略。
+- 支持必填字段验证、正则表达式匹配和自定义验证函数。
+- 提供简单一致的 API 用于添加规则和运行验证。
 
-- 支持多种验证规则类型：Validator 支持三种验证规则类型：RuleItemRequired、RuleItemReg、RuleItemValidator 和 RuleItemEmail。每种规则类型都有不同的验证策略和属性。
+## 使用方法
 
-- 可自定义验证规则：可以根据需求定义自己的验证规则，并使用自定义的验证策略函数进行验证。
+### 创建 Validator
 
-- 添加和执行验证规则：可以通过 add 方法向验证器添加验证规则，并使用 run 方法执行验证过程。验证器将根据添加的规则顺序依次验证值，并返回第一个不满足规则的错误消息。
+要开始使用 `Validator`，您需要通过提供一个验证规则数组来创建一个实例。每个规则使用 `RuleItem` 类型进行定义，可以是以下类型之一：
 
-- 高度可扩展性：Validator 的设计允许轻松添加新的验证规则和验证策略，以满足不同的验证需求。
+- `RuleItemRequired`：指定字段为必填项。
+- `RuleItemReg`：指定字段应匹配的正则表达式模式。
+- `RuleItemValidator`：指定自定义验证函数。
+- `RuleItemField`：指定附加字段属性（例如消息、类型）。
 
-## 使用示例
+示例：
 
-下面是一些使用 Validator 的示例：
+```typescript
+import { Validator } from "@your-organization/validator";
 
-```javascript
-import { Validator, RuleItemRequired, RuleItemReg, RuleItemValidator, RuleItemEmail } from 'validator';
-
-// 创建一个验证器实例
-const validator = new Validator();
-
-// 定义验证规则
 const rules = [
-  { required: true, message: '请输入姓名' } as RuleItemRequired,
-  { reg: /^\d{4}$/, message: '请输入四位数字' } as RuleItemReg,
-  { validator: (rule, value) => {
-      if (value !== 'hello') {
-        throw new Error('Value must be "hello"');
-      }
-    },
-    message: 'Value validation failed'
-  } as RuleItemValidator,
-  { email: true, message: '请输入有效的邮箱' } as RuleItemEmail,
+  { required: true, message: "字段不能为空" },
+  { reg: /^[A-Z]+$/, message: "字段应只包含大写字母" },
+  {
+    validator: (rule, value) =>
+      value.length >= 5 ? undefined : "字段长度应至少为 5 个字符",
+  },
 ];
 
-// 将规则添加到验证器
-validator.add(...rules);
+const validator = new Validator(rules);
+```
 
-// 需要验证的值
-const value = '12345';
+### 添加规则
 
-// 执行验证
-const error = validator.run(value);
+您可以使用 `add` 方法将附加的规则添加到 `Validator` 实例中。这些规则将追加到现有的规则集中。
 
-if (error) {
-  console.log('验证未通过:', error);
+```typescript
+validator.add({ required: true, message: "另一个字段是必填项" });
+```
+
+### 运行验证
+
+要对某个值进行验证，使用 `run` 方法在 `Validator` 实例上运行验证过程。它接受一个值作为参数，并返回验证失败时的错误消息，或者在值有效时返回空字符串。
+
+```typescript
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
 } else {
-  console.log('验证通过');
+  console.log("值是有效的");
 }
 ```
 
-安装
-可以使用 npm 或 yarn 安装 Validator：
-npm install validator
-或者
-yarn add validator
-API
-Validator
-Validator 类是主要的验证器类，用于创建和执行验证过程。
+### 自定义验证策略
 
-构造函数
-new Validator(rules?: RuleItem[])
-创建一个 Validator 实例。
+`Validator` 支持自定义验证策略。您可以通过实现 `ValidationStrategy` 接口并提供一个唯一的 `type` 属性来创建自己的策略。然后，在创建 `Validator` 实例之前，使用 `addStrategies` 方法注册策略。
 
-rules (可选)：初始的验证规则数组。
-方法
-add(...rules: RuleItem[]): void
-向验证器添加验证规则。
+```typescript
+import { ValidationStrategy, Validator } from "@your-organization/validator";
 
-rules：要添加的验证规则。
-run(value: any): string | void
-执行验证过程，对给定的值进行验证。
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
 
-value：要验证的值。
-返回第一个不满足规则的错误消息，如果所有规则都通过验证，则返回 undefined。
+  validate(rule, value) {
+    // 自定义验证逻辑
+  }
+}
 
-Contributing
-欢迎贡献代码、提出问题和建议
+Validator.addStrategies(new MyCustomValidationStrategy());
+```
+
+### 可用的默认默认策略
+
+`Validator` 提供了一组默认的验证策略，可以直接在规则中使用。以下是默认策略及其对应的类型和说明：
+
+- `__required`: 必填字段验证策略。规则类型为 `RuleItemRequired`。如果字段的值为空字符串，则验证失败。
+- `__regexp`: 正则表达式验证策略。规则类型为 `RuleItemReg`。如果字段的值不满足正则表达式模式，则验证失败。
+- `__custom`: 自定义验证函数策略。规则类型为 `RuleItemValidator`。可以使用自定义的验证函数进行复杂的验证逻辑。
+
+要使用这些默认策略，只需在规则中指定相应的类型即可。
+
+```typescript
+const rules = [
+  { type: "__required", message: "字段是必填项" },
+  { type: "__regexp", reg: /^[A-Z]+$/, message: "字段应只包含大写字母" },
+  {
+    type: "__custom",
+    validator: (rule, value) =>
+      value.length >= 5 ? undefined : "字段长度应至少为 5 个字符",
+  },
+];
+```
+
+### 添加自定义策略
+
+除了默认策略，您还可以添加自定义的验证策略。要添加自定义策略，需要实现 `ValidationStrategy` 接口，并在创建 `Validator` 实例之前使用 `addStrategies` 方法将其注册到 `Validator` 中。
+
+```typescript
+import { ValidationStrategy, Validator } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // 自定义验证逻辑
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+```
+
+然后，在规则中使用自定义策略的类型进行验证：
+
+```typescript
+const rules = [{ type: "myCustomValidation", message: "自定义验证失败" }];
+```
+
+## 许可证
+
+该项目基于 MIT 许可证进行许可 - 详细信息请参阅 [LICENSE](LICENSE) 文件。
+
+---
+
+根据您的特定要求，随时更新 README.md 文件中的软件包名称、组织和许可证信息。

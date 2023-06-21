@@ -1,97 +1,869 @@
+English | [简体中文](https://github.com/liliangrong777/easy-validator/blob/main/README.ZH.md)
+
 # Validator
 
-Validator is a JavaScript class for value validation. It provides a flexible way to define validation rules and validate values based on those rules.
+`Validator` is an npm package that provides a flexible and extensible validation framework for validating data based on a set of rules. It allows you to define validation rules using various strategies and perform validation on different types of data.
+
+## Installation
+
+To install the `Validator` package, you can use npm or yarn:
+
+```shell
+npm install @your-organization/validator
+```
+
+or
+
+```shell
+yarn add @your-organization/validator
+```
 
 ## Features
 
-Validator class offers the following features:
+- Define validation rules using a set of predefined strategies.
+- Extensible architecture allows adding custom validation strategies.
+- Supports required field validation, regular expression pattern matching, and custom validation functions.
+- Provides a simple and consistent API for adding rules and running validations.
 
-- Supports multiple validation rule types: Validator supports four validation rule types: RuleItemRequired, RuleItemReg, RuleItemValidator, and RuleItemEmail. Each rule type has different validation strategies and properties.
+## Usage
 
-- Customizable validation rules: You can define your own validation rules based on your requirements and use custom validation strategy functions for validation.
+### Creating a Validator
 
-- Adding and executing validation rules: You can add validation rules to the validator using the add method and perform validation using the run method. The validator will sequentially validate the value based on the added rules and return the first error message for the rule that fails validation.
+To start using the `Validator`, you need to create an instance by providing an array of validation rules. Each rule is defined using the `RuleItem` type, which can be one of the following:
 
-- Highly extensible: The design of Validator allows easy addition of new validation rules and strategies to meet different validation needs.
+- `RuleItemRequired`: Specifies that a field is required.
+- `RuleItemReg`: Specifies a regular expression pattern that the field should match.
+- `RuleItemValidator`: Specifies a custom validation function.
+- `RuleItemField`: Specifies additional field properties (e.g., message, type).
 
-## Usage Example
+Example:
 
-Here are some examples of using Validator:
+```typescript
+import { Validator } from "@your-organization/validator";
 
-```javascript
-import { Validator, RuleItemRequired, RuleItemReg, RuleItemValidator, RuleItemEmail } from 'validator';
-
-// Create a validator instance
-const validator = new Validator();
-
-// Define validation rules
 const rules = [
-  { required: true, message: 'Please enter your name' } as RuleItemRequired,
-  { reg: /^\d{4}$/, message: 'Please enter a four-digit number' } as RuleItemReg,
-  { validator: (rule, value) => {
-      if (value !== 'hello') {
-        throw new Error('Value must be "hello"');
-      }
-    },
-    message: 'Value validation failed'
-  } as RuleItemValidator,
-  { email: true, message: 'Please enter a valid email address' } as RuleItemEmail,
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+  {
+    validator: (rule, value) =>
+      value.length >= 5 ? undefined : "Field should have at least 5 characters",
+  },
 ];
 
-// Add rules to the validator
-validator.add(...rules);
+const validator = new Validator(rules);
+```
 
-// Value to be validated
-const value = '12345';
+### Adding Rules
 
-// Perform validation
-const error = validator.run(value);
+You can add additional rules to the `Validator` instance using the `add` method. The rules will be appended to the existing set of rules.
 
-if (error) {
-  console.log('Validation failed:', error);
+```typescript
+validator.add({ required: true, message: "Another field is required" });
+```
+
+### Running Validations
+
+To perform validations on a value, use the `run` method of the `Validator` instance. It takes the value as an argument and returns an error message if validation fails, or an empty string if the value is valid.
+
+```typescript
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
 } else {
-  console.log('Validation passed');
+  console.log("Value is valid");
 }
 ```
 
-Installation
-You can install Validator using npm or yarn:
+### Custom Validation Strategies
 
-shell
-Copy code
-npm install validator
-or
+The `Validator` supports custom validation strategies. You can create your own strategy by implementing the `ValidationStrategy` interface and providing a unique `type` property. Then, register the strategy using the `addStrategies` method before creating a `Validator` instance.
 
-shell
-Copy code
-yarn add validator
-API
-Validator
-Validator is the main validator class used for creating and executing the validation process.
+```typescript
+import { ValidationStrategy, Validator } from "@your-organization/validator";
 
-Constructor
-new Validator(rules?: RuleItem[])
-Creates a new instance of Validator.
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
 
-rules (optional): An array of initial validation rules.
-Methods
-add(...rules: RuleItem[]): void
-Adds validation rules to the validator.
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
 
-rules: The validation rules to be added.
-run(value: any): string | void
-Executes the validation process for the given value.
+Validator.addStrategies(new MyCustomValidationStrategy());
+```
 
-value: The value to be validated.
-Returns the first error message for the rule that fails validation. If all rules pass validation, it returns undefined.
+### Available Default Strategies
 
-Contributing
-Contributions, questions, and suggestions are welcome. Please refer to the contributing guidelines for more information.
+The `Validator` package comes with the following default validation strategies:
 
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+- `__required`: Checks if the field is required.
+- `__regexp`: Validates the field against a regular expression pattern.
+- `__custom`: Executes a custom validation function.
 
-python
-Copy code
+### Extending the Default Strategies
 
-Apologies for any inconvenience caused earlier. This version provides the same content as the previous one, but in English.
+You can extend the default strategies by subclassing the existing validation strategy classes. Override the `validate` method with your custom validation logic, and register the new strategy using the `addStrategies` method.
+
+## API Reference
+
+### `Validator`
+
+The main class representing the validator.
+
+#### `constructor(rules?: RuleItem[])`
+
+Creates a new `Validator` instance with optional initial validation rules.
+
+```typescript
+rules?: RuleItem[] // An optional array of validation rules.
+```
+
+#### `add(...rules: RuleItem[])`
+
+Adds one or more validation rules to the `Validator`.```typescript
+rules?: RuleItem[] // An optional array of validation rules.
+
+````
+
+#### `add(...rules: RuleItem[])`
+
+Adds one or more validation rules to the `Validator`.
+
+- `...rules` (Rest parameter): The validation rules to add.
+
+#### `run(value: any): string`
+
+Runs the validation process on a given value and returns the validation error message, if any.
+
+- `value`: The value to validate.
+
+### `RuleItem`
+
+The type representing a validation rule item.
+
+#### `RuleItemRequired`
+
+Represents a required field validation rule.
+
+```typescript
+{
+  required: boolean; // Indicates if the field is required.
+  message?: string; // Optional error message for the validation rule.
+}
+````
+
+#### `RuleItemReg`
+
+Represents a regular expression pattern validation rule.
+
+```typescript
+{
+  reg: RegExp; // The regular expression pattern to match against.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemValidator`
+
+Represents a custom validation function rule.
+
+```typescript
+{
+  validator: (rule: RuleItem, value: any) => Error | void; // The custom validation function.
+}
+```
+
+#### `RuleItemField`
+
+Represents additional field properties for a rule.
+
+```typescript
+{
+  message?: string; // Optional error message for the validation rule.
+  type?: string; // Optional field type for custom validation strategies.
+}
+```
+
+### `ValidationStrategy`
+
+The interface representing a validation strategy.
+
+#### `type: string`
+
+A unique identifier for the validation strategy.
+
+#### `validate(rule: RuleItem, value: any): void | string`
+
+Performs the validation based on the provided rule and value. It returns `void` if the validation is successful or a validation error message as a `string` if the validation fails.
+
+### `Validator.defaultStrategies`
+
+A static property containing the default validation strategies provided by the package.
+
+### `Validator.addStrategies(...ValidationStrategy: ValidationStrategy[])`
+
+Adds additional validation strategies to the `Validator`.
+
+- `...ValidationStrategy` (Rest parameter): The validation strategies to add.
+
+## Examples
+
+### Example 1: Basic Usage
+
+```typescript
+import { Validator } from "@your-organization/validator";
+
+const rules = [
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+### Example 2: Custom Validation Strategy
+
+```typescript
+import { Validator, ValidationStrategy } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+
+const rules = [
+  { type: "myCustomValidation", message: "Custom validation failed" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- This package is based on the validation framework developed by OpenAI.
+
+---
+
+Feel free to update the package name, organization, and license information in the README.md file according to your specific requirements.```typescript
+rules?: RuleItem[] // An optional array of validation rules.
+
+````
+
+#### `add(...rules: RuleItem[])`
+
+Adds one or more validation rules to the `Validator`.
+
+- `...rules` (Rest parameter): The validation rules to add.
+
+#### `run(value: any): string`
+
+Runs the validation process on a given value and returns the validation error message, if any.
+
+- `value`: The value to validate.
+
+### `RuleItem`
+
+The type representing a validation rule item.
+
+#### `RuleItemRequired`
+
+Represents a required field validation rule.
+
+```typescript
+{
+  required: boolean; // Indicates if the field is required.
+  message?: string; // Optional error message for the validation rule.
+}
+````
+
+#### `RuleItemReg`
+
+Represents a regular expression pattern validation rule.
+
+```typescript
+{
+  reg: RegExp; // The regular expression pattern to match against.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemValidator`
+
+Represents a custom validation function rule.
+
+```typescript
+{
+  validator: (rule: RuleItem, value: any) => Error | void; // The custom validation function.
+}
+```
+
+#### `RuleItemField`
+
+Represents additional field properties for a rule.
+
+```typescript
+{
+  message?: string; // Optional error message for the validation rule.
+  type?: string; // Optional field type for custom validation strategies.
+}
+```
+
+### `ValidationStrategy`
+
+The interface representing a validation strategy.
+
+#### `type: string`
+
+A unique identifier for the validation strategy.
+
+#### `validate(rule: RuleItem, value: any): void | string`
+
+Performs the validation based on the provided rule and value. It returns `void` if the validation is successful or a validation error message as a `string` if the validation fails.
+
+### `Validator.defaultStrategies`
+
+A static property containing the default validation strategies provided by the package.
+
+### `Validator.addStrategies(...ValidationStrategy: ValidationStrategy[])`
+
+Adds additional validation strategies to the `Validator`.
+
+- `...ValidationStrategy` (Rest parameter): The validation strategies to add.
+
+## Examples
+
+### Example 1: Basic Usage
+
+```typescript
+import { Validator } from "@your-organization/validator";
+
+const rules = [
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+### Example 2: Custom Validation Strategy
+
+```typescript
+import { Validator, ValidationStrategy } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+
+const rules = [
+  { type: "myCustomValidation", message: "Custom validation failed" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- This package is based on the validation framework developed by OpenAI.
+
+---
+
+Feel free to update the package name, organization, and license information in the README.md file according to your specific requirements.```typescript
+rules?: RuleItem[] // An optional array of validation rules.
+
+````
+
+#### `add(...rules: RuleItem[])`
+
+Adds one or more validation rules to the `Validator`.
+
+- `...rules` (Rest parameter): The validation rules to add.
+
+#### `run(value: any): string`
+
+Runs the validation process on a given value and returns the validation error message, if any.
+
+- `value`: The value to validate.
+
+### `RuleItem`
+
+The type representing a validation rule item.
+
+#### `RuleItemRequired`
+
+Represents a required field validation rule.
+
+```typescript
+{
+  required: boolean; // Indicates if the field is required.
+  message?: string; // Optional error message for the validation rule.
+}
+````
+
+#### `RuleItemReg`
+
+Represents a regular expression pattern validation rule.
+
+```typescript
+{
+  reg: RegExp; // The regular expression pattern to match against.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemValidator`
+
+Represents a custom validation function rule.
+
+```typescript
+{
+  validator: (rule: RuleItem, value: any) => Error | void; // The custom validation function.
+}
+```
+
+#### `RuleItemField`
+
+Represents additional field properties for a rule.
+
+```typescript
+{
+  message?: string; // Optional error message for the validation rule.
+  type?: string; // Optional field type for custom validation strategies.
+}
+```
+
+### `ValidationStrategy`
+
+The interface representing a validation strategy.
+
+#### `type: string`
+
+A unique identifier for the validation strategy.
+
+#### `validate(rule: RuleItem, value: any): void | string`
+
+Performs the validation based on the provided rule and value. It returns `void` if the validation is successful or a validation error message as a `string` if the validation fails.
+
+### `Validator.defaultStrategies`
+
+A static property containing the default validation strategies provided by the package.
+
+### `Validator.addStrategies(...ValidationStrategy: ValidationStrategy[])`
+
+Adds additional validation strategies to the `Validator`.
+
+- `...ValidationStrategy` (Rest parameter): The validation strategies to add.
+
+## Examples
+
+### Example 1: Basic Usage
+
+```typescript
+import { Validator } from "@your-organization/validator";
+
+const rules = [
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+### Example 2: Custom Validation Strategy
+
+```typescript
+import { Validator, ValidationStrategy } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+
+const rules = [
+  { type: "myCustomValidation", message: "Custom validation failed" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- This package is based on the validation framework developed by OpenAI.
+
+---
+
+Feel free to update the package name, organization, and license information in the README.md file according to your specific requirements.```typescript
+rules?: RuleItem[] // An optional array of validation rules.
+
+````
+
+#### `add(...rules: RuleItem[])`
+
+Adds one or more validation rules to the `Validator`.
+
+- `...rules` (Rest parameter): The validation rules to add.
+
+#### `run(value: any): string`
+
+Runs the validation process on a given value and returns the validation error message, if any.
+
+- `value`: The value to validate.
+
+### `RuleItem`
+
+The type representing a validation rule item.
+
+#### `RuleItemRequired`
+
+Represents a required field validation rule.
+
+```typescript
+{
+  required: boolean; // Indicates if the field is required.
+  message?: string; // Optional error message for the validation rule.
+}
+````
+
+#### `RuleItemReg`
+
+Represents a regular expression pattern validation rule.
+
+```typescript
+{
+  reg: RegExp; // The regular expression pattern to match against.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemValidator`
+
+Represents a custom validation function rule.
+
+```typescript
+{
+  validator: (rule: RuleItem, value: any) => Error | void; // The custom validation function.
+}
+```
+
+#### `RuleItemField`
+
+Represents additional field properties for a rule.
+
+```typescript
+{
+  message?: string; // Optional error message for the validation rule.
+  type?: string; // Optional field type for custom validation strategies.
+}
+```
+
+### `ValidationStrategy`
+
+The interface representing a validation strategy.
+
+#### `type: string`
+
+A unique identifier for the validation strategy.
+
+#### `validate(rule: RuleItem, value: any): void | string`
+
+Performs the validation based on the provided rule and value. It returns `void` if the validation is successful or a validation error message as a `string` if the validation fails.
+
+### `Validator.defaultStrategies`
+
+A static property containing the default validation strategies provided by the package.
+
+### `Validator.addStrategies(...ValidationStrategy: ValidationStrategy[])`
+
+Adds additional validation strategies to the `Validator`.
+
+- `...ValidationStrategy` (Rest parameter): The validation strategies to add.
+
+## Examples
+
+### Example 1: Basic Usage
+
+```typescript
+import { Validator } from "@your-organization/validator";
+
+const rules = [
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+### Example 2: Custom Validation Strategy
+
+```typescript
+import { Validator, ValidationStrategy } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+
+const rules = [
+  { type: "myCustomValidation", message: "Custom validation failed" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- This package is based on the validation framework developed by OpenAI.
+
+---
+
+Feel free to update the package name, organization, and license information in the README.md file according to your specific requirements.
+
+- `...rules` (Rest parameter): The validation rules to add.
+
+#### `run(value: any): string`
+
+Runs the validation process on a given value and returns the validation error message, if any.
+
+- `value`: The value to validate.
+
+### `RuleItem`
+
+The type representing a validation rule item.
+
+#### `RuleItemRequired`
+
+Represents a required field validation rule.
+
+```typescript
+{
+  required: boolean; // Indicates if the field is required.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemReg`
+
+Represents a regular expression pattern validation rule.
+
+```typescript
+{
+  reg: RegExp; // The regular expression pattern to match against.
+  message?: string; // Optional error message for the validation rule.
+}
+```
+
+#### `RuleItemValidator`
+
+Represents a custom validation function rule.
+
+```typescript
+{
+  validator: (rule: RuleItem, value: any) => Error | void; // The custom validation function.
+}
+```
+
+#### `RuleItemField`
+
+Represents additional field properties for a rule.
+
+```typescript
+{
+  message?: string; // Optional error message for the validation rule.
+  type?: string; // Optional field type for custom validation strategies.
+}
+```
+
+### `ValidationStrategy`
+
+The interface representing a validation strategy.
+
+#### `type: string`
+
+A unique identifier for the validation strategy.
+
+#### `validate(rule: RuleItem, value: any): void | string`
+
+Performs the validation based on the provided rule and value. It returns `void` if the validation is successful or a validation error message as a `string` if the validation fails.
+
+### `Validator.defaultStrategies`
+
+A static property containing the default validation strategies provided by the package.
+
+### `Validator.addStrategies(...ValidationStrategy: ValidationStrategy[])`
+
+Adds additional validation strategies to the `Validator`.
+
+- `...ValidationStrategy` (Rest parameter): The validation strategies to add.
+
+## Examples
+
+### Example 1: Basic Usage
+
+```typescript
+import { Validator } from "@your-organization/validator";
+
+const rules = [
+  { required: true, message: "Field is required" },
+  { reg: /^[A-Z]+$/, message: "Field should contain uppercase letters only" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+### Example 2: Custom Validation Strategy
+
+```typescript
+import { Validator, ValidationStrategy } from "@your-organization/validator";
+
+class MyCustomValidationStrategy implements ValidationStrategy {
+  type = "myCustomValidation";
+
+  validate(rule, value) {
+    // Custom validation logic
+  }
+}
+
+Validator.addStrategies(new MyCustomValidationStrategy());
+
+const rules = [
+  { type: "myCustomValidation", message: "Custom validation failed" },
+];
+
+const validator = new Validator(rules);
+
+const value = "ABC";
+const errorMessage = validator.run(value);
+
+if (errorMessage) {
+  console.error(errorMessage);
+} else {
+  console.log("Value is valid");
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Feel free to update the package name, organization, and license information in the README.md file according to your specific requirements.
