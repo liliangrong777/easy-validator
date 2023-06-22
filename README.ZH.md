@@ -9,13 +9,13 @@
 要安装 `Validator` 包，您可以使用 npm 或 yarn：
 
 ```shell
-npm install @your-organization/validator
+npm install js-easy-validator -S
 ```
 
 或者
 
 ```shell
-yarn add @your-organization/validator
+yarn add js-easy-validator
 ```
 
 ## 功能
