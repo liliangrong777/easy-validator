@@ -39,18 +39,22 @@ yarn add js-easy-validator
 示例：
 
 ```typescript
-import { Validator } from "@your-organization/validator";
+import { Validator } from "js-easy-validator";
 
 const rules = [
   { required: true, message: "字段不能为空" },
   { reg: /^[A-Z]+$/, message: "字段应只包含大写字母" },
   {
     validator: (rule, value) =>
-      value.length >= 5 ? undefined : "字段长度应至少为 5 个字符",
+      value.length >= 3 ? undefined : "字段长度应至少为 3 个字符",
   },
 ];
 
 const validator = new Validator(rules);
+validator.run(""); //字段不能为空
+validator.run("test"); //字段应只包含大写字母
+validator.run("S"); //字段长度应至少为 3 个字符
+validator.run("VALIDATOR"); // 校验通过返回空字符串
 ```
 
 ### 添加规则
@@ -81,7 +85,7 @@ if (errorMessage) {
 `Validator` 支持自定义验证策略。您可以通过实现 `ValidationStrategy` 接口并提供一个唯一的 `type` 属性来创建自己的策略。然后，在创建 `Validator` 实例之前，使用 `addStrategies` 方法注册策略。
 
 ```typescript
-import { ValidationStrategy, Validator } from "@your-organization/validator";
+import { ValidationStrategy, Validator } from "js-easy-validator";
 
 class MyCustomValidationStrategy implements ValidationStrategy {
   type = "myCustomValidation";
@@ -121,7 +125,7 @@ const rules = [
 除了默认策略，您还可以添加自定义的验证策略。要添加自定义策略，需要实现 `ValidationStrategy` 接口，并在创建 `Validator` 实例之前使用 `addStrategies` 方法将其注册到 `Validator` 中。
 
 ```typescript
-import { ValidationStrategy, Validator } from "@your-organization/validator";
+import { ValidationStrategy, Validator } from "js-easy-validator";
 
 class MyCustomValidationStrategy implements ValidationStrategy {
   type = "myCustomValidation";
